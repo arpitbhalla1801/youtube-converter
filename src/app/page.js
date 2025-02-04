@@ -1,50 +1,52 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Download, Loader2 } from "lucide-react";
+import { useState } from "react"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Download, Loader2 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 
 export default function Downloader() {
-  const [url, setUrl] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [url, setUrl] = useState("")
+  const [format, setFormat] = useState("mp3")
+  const [downloadUrl, setDownloadUrl] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleDownload = async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true)
+    setError("")
     try {
       const response = await fetch("/api/download", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
-      });
+        body: JSON.stringify({ url, format }),
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        setDownloadUrl(data.fileUrl);
+        setDownloadUrl(data.fileUrl)
       } else {
-        setError(data.message || "An error occurred");
+        setError(data.message || "An error occurred")
       }
     } catch (error) {
-      console.error("Download failed:", error);
-      setError("Failed to download video");
+      console.error("Download failed:", error)
+      setError("Failed to download video")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">YouTube Video Downloader</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">YouTube Downloader</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -55,6 +57,16 @@ export default function Downloader() {
               onChange={(e) => setUrl(e.target.value)}
               disabled={loading}
             />
+            
+            <div className="flex items-center justify-between">
+              <span>MP3</span>
+              <Switch
+                checked={format === "mp4"}
+                onCheckedChange={(checked) => setFormat(checked ? "mp4" : "mp3")}
+              />
+              <span>MP4</span>
+            </div>
+
             <Button onClick={handleDownload} disabled={loading || !url} className="w-full">
               {loading ? (
                 <>
@@ -79,12 +91,12 @@ export default function Downloader() {
           {downloadUrl && (
             <Button asChild variant="outline" className="w-full">
               <a href={downloadUrl} download>
-                Click here to download the video
+                Click here to download the {format.toUpperCase()} file
               </a>
             </Button>
           )}
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
